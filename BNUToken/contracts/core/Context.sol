@@ -5,7 +5,7 @@ pragma solidity ^0.7.1;
  * @dev Provide context functions
  */
 abstract contract Context {
-    address public owner;            //Contract owner address
+    address public owner;                   //Contract owner address
     bool public isContractActive;           //Make sure this contract can be used or not
     
     /**
@@ -53,9 +53,8 @@ abstract contract Context {
     /**
     * Update contract status to make sure this contract can be executed or not
      */
-    function setContractStatus(bool status) external onlyOwner{
-        require(isContractActive != status,"The current contract's status is the same with updating status");
-        isContractActive = status;
+    function toggleContractStatus() external onlyOwner{
+        isContractActive = !isContractActive;
     }
 
     /**

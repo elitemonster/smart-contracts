@@ -15,7 +15,7 @@ contract BNFToken is ERC20Token, IBNFToken {
     }
     
     address public _tokenSaleContractAddress;
-    uint public _byteNextPercent;
+    uint public immutable _byteNextPercent = 20;
     address public _bnfSwapContractAddress;
     address public _byteNextFundAddress;
     
@@ -24,15 +24,14 @@ contract BNFToken is ERC20Token, IBNFToken {
     /**
      * @dev Generate token information
     */
-    constructor () {
+    constructor (address byteNextFundAddress, address tokenSaleContractAddress) {
         name = 'ByteNext Fund';
         symbol = 'BNF';
         decimals = 18;
         _totalSupply = 0;
         
-        _byteNextPercent = 20;
-        _byteNextFundAddress = 0x77f42723192B4e9D76f752F3404Fff46Dc535ade;
-        _tokenSaleContractAddress = 0xA83D81113F57d63AF7EFDC4a12350365c7871266;
+        _byteNextFundAddress = byteNextFundAddress;                                     //0x77f42723192B4e9D76f752F3404Fff46Dc535ade;
+        _tokenSaleContractAddress = tokenSaleContractAddress;                           //0xA83D81113F57d63AF7EFDC4a12350365c7871266;
     }
     
     /**
@@ -125,11 +124,12 @@ contract BNFToken is ERC20Token, IBNFToken {
         
         uint ethBalance = address(this).balance;
         require(ethBalance > 0, "This fund has had no profit yet");
+
+        uint ethReceive = amount.mul(ethBalance).div(_totalSupply);
         
         _totalSupply = _totalSupply.sub(amount);
         _balances[sender] = _balances[sender].sub(amount);
 
-        uint ethReceive = amount.mul(ethBalance).div(_totalSupply);
         sender.transfer(ethReceive);
         
         emit WithdrawShare(sender, amount);
@@ -171,7 +171,7 @@ contract BNFToken is ERC20Token, IBNFToken {
         
         require(_holderAddresses.length > 0, "No shareholder found");
         
-        uint totalEthToPay = ethBalance.mul(100).div(percentage);
+        uint totalEthToPay = ethBalance.mul(percentage).div(100);
         for(uint index = 0; index < _holderAddresses.length; index++){
             address holderAddress = _holderAddresses[index];
             uint ethToPay = _balances[holderAddress].mul(totalEthToPay).div(_totalSupply);

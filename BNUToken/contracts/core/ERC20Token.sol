@@ -119,6 +119,19 @@ abstract contract ERC20Token is IERC20Token, Context {
         return _approve(_msgSender(), spender, value);
     }
 
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
+        return true;
+    }
+
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        uint256 currentAllowance = _allowances[_msgSender()][spender];
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
+
+        return true;
+    }
+
     function allowance(address owner, address spender) public virtual view override returns (uint) {
         return _allowance(owner, spender);
     }
@@ -138,12 +151,11 @@ abstract contract ERC20Token is IERC20Token, Context {
         uint tokenBalance = tokenContract.balanceOf(address(this));
         require(tokenBalance > 0, "Balance is zero");
         
-        tokenContract.transfer(owner, tokenBalance);
+        require(tokenContract.transfer(owner, tokenBalance));
     }
     
     function _transfer(address sender, address recipient, uint amount) internal {
         require(amount > 0, "Transfer amount should be greater than zero");
-        require(_balances[sender] >= amount);
         
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
@@ -161,7 +173,9 @@ abstract contract ERC20Token is IERC20Token, Context {
     }
     
     function _approve(address owner, address spender, uint value) internal returns (bool){
-        require(value >= 0,"Approval value can not be negative");
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
         _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
         return true;

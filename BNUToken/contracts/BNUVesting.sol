@@ -17,9 +17,9 @@ contract BNUVesting is BaseBNUStoreClient{
 
     struct LockedToken {
         address account;
+        bool unlocked;
         uint amount;
         uint unlockedTime;
-        bool unlocked;
     }
 
     /**
@@ -27,11 +27,10 @@ contract BNUVesting is BaseBNUStoreClient{
     */
     LockedToken[] internal _lockedTokens;
 
-    constructor(){
-        _teamAddress = 0x830db936ad911D545388F2Bf736C9d05a9eA6753;
-        _advisorAddress = 0xB2eB9c15bC077813736B36b7a00287c43dd9d732;
-        
-        _startTime = 1610518359;
+    constructor(uint startTime, address teamAddress, address advisorAddress){
+        _teamAddress = teamAddress;                                                                   //0x830db936ad911D545388F2Bf736C9d05a9eA6753;
+        _advisorAddress = advisorAddress;                                                             //0xB2eB9c15bC077813736B36b7a00287c43dd9d732;
+        _startTime = startTime;                                                                       //1610518359;
 
         //Add locked histories
         _addLockedToken(_teamAddress, 30000000000000000000000000, 730 days);
@@ -53,9 +52,9 @@ contract BNUVesting is BaseBNUStoreClient{
     function _addLockedToken(address account, uint amount, uint unlockedAfter) internal {
         _lockedTokens.push(LockedToken({
             account: account,
+            unlocked: false,
             amount: amount,
-            unlockedTime: _startTime.add(unlockedAfter),
-            unlocked: false
+            unlockedTime: _startTime.add(unlockedAfter)
         }));
     }
 

@@ -26,7 +26,7 @@ contract BNUStore is Context{
     /**
     @dev BNU token contrat address
      */
-    IERC20Token internal _bnxTokenContract;
+    IERC20Token internal _bnuTokenContract;
 
     function setBnuTokenContract(address contractAddress) external onlyOwner contractActive{
         _setBnuTokenContract(contractAddress);
@@ -45,12 +45,12 @@ contract BNUStore is Context{
     }
 
     function transfer(address recipient, uint amount) external onlyAllowedContracts contractActive returns(bool){
-        require(_bnxTokenContract.transfer(recipient, amount),"Can not transfer BNU");
+        require(_bnuTokenContract.transfer(recipient, amount),"Can not transfer BNU");
         return true;
     }
 
     function _setBnuTokenContract(address contractAddress) internal{
-        _bnxTokenContract = IERC20Token(contractAddress);
+        _bnuTokenContract = IERC20Token(contractAddress);
     }
 }
 

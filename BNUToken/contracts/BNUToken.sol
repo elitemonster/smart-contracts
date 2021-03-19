@@ -10,7 +10,7 @@ import './libs/SafeMath.sol';
 contract BNUToken is ERC20Token, BlackList{
     using SafeMath for uint;
 
-    uint internal _eightteenDecimalValue = 1000000000000000000;
+    uint internal immutable _eightteenDecimalValue = 1000000000000000000;
     
     //TOKEN ALLOCATIONS
     address public _foundationalReserveAddress;
