@@ -7,7 +7,7 @@ pragma solidity ^0.7.1;
 abstract contract Context {
     address public owner;                   //Contract owner address
     bool public isContractActive;           //Make sure this contract can be used or not
-    
+    address internal _requestingOwner;
     /**
      * Make sure the sender is the owner of contract
      */ 
@@ -58,7 +58,14 @@ abstract contract Context {
     }
 
     /**
-    * @dev Change contract's owner
+    * @dev Return the new owner address is being requested
+    */
+    function requestingOwner() external view returns(address){
+        return _requestingOwner;
+    }
+
+    /**
+    * @dev Request to transfer ownership for contract
     * @return If success return true; else return false
     * 
     * Requirements:
@@ -68,18 +75,27 @@ abstract contract Context {
     * 
     * Implementations:
     *   1. Validate requirements
-    *   2. Set current owner is newOwner
-    *   3. Emit Events
-    *   4. Return result
+    *   2. Set _requestingOwner is newOwner
+    *   3. Return result
     */
-    function setOwner(address newOwner) external onlyOwner returns(bool){
+    function requestNewOwner(address newOwner) external onlyOwner returns(bool){
         require(newOwner != address(0), "New owner is zero address");
         require(newOwner != owner, "New owner is current owner");
 
-        owner = newOwner;
+        _requestingOwner = newOwner;
+        return true;
+    }
+
+    /**
+    * @dev New requesting owner approves to being new contract's owner
+     */
+    function approveNewOwner() external{
+        require(_requestingOwner != address(0), "New requesting owner is not initialized");
+        require(_msgSender() == _requestingOwner, "Forbidden");
+        owner = _requestingOwner;
+        _requestingOwner = address(0);
 
         emit OwnerChanged(owner);
-        return true;
     }
 
     /**
