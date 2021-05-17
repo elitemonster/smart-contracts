@@ -1,107 +1,24 @@
-pragma solidity ^0.7.1;
+//SPDX-License-Identifier: MIT
 
-/**
- * @title Context
- * @dev Provide context functions
+pragma solidity ^0.8.0;
+
+/*
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
  */
 abstract contract Context {
-    address public owner;                   //Contract owner address
-    bool public isContractActive;           //Make sure this contract can be used or not
-    address internal _requestingOwner;
-    /**
-     * Make sure the sender is the owner of contract
-     */ 
-    modifier onlyOwner{
-        require(_msgSender() == owner, "Only owner can process");
-        _;
-    }
-    
-    /**
-     * Make sure the contract is active to execute
-    */ 
-    modifier contractActive{
-        require(isContractActive, "This contract is deactived");
-        _;
-    }
-
-    /**
-    * @dev Constructor
-    * 
-    * Implementations:
-    *   1. Set the owner of contract
-    *   2. Set contract is active
-    */
-    constructor(){
-       owner = _msgSender();           //Set owner address when contract is created
-       isContractActive = true;        //Contract is active when it is created
-    }
-
-    /**
-     * Get sender address
-     */ 
-    function _msgSender() internal view returns(address){
+    function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 
-    /**
-     * Get current time in unix timestamp
-     */
-    function _now() internal view returns(uint){
-        return block.timestamp;
+    function _msgData() internal view virtual returns (bytes calldata) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
     }
-
-    /**
-    * Update contract status to make sure this contract can be executed or not
-     */
-    function toggleContractStatus() external onlyOwner{
-        isContractActive = !isContractActive;
-    }
-
-    /**
-    * @dev Return the new owner address is being requested
-    */
-    function requestingOwner() external view returns(address){
-        return _requestingOwner;
-    }
-
-    /**
-    * @dev Request to transfer ownership for contract
-    * @return If success return true; else return false
-    * 
-    * Requirements:
-    *   1. Only current owner can execute
-    *   2. `newOwner` is not zero address
-    *   3. `newOwner` is not current owner
-    * 
-    * Implementations:
-    *   1. Validate requirements
-    *   2. Set _requestingOwner is newOwner
-    *   3. Return result
-    */
-    function requestNewOwner(address newOwner) external onlyOwner returns(bool){
-        require(newOwner != address(0), "New owner is zero address");
-        require(newOwner != owner, "New owner is current owner");
-
-        _requestingOwner = newOwner;
-        return true;
-    }
-
-    /**
-    * @dev New requesting owner approves to being new contract's owner
-     */
-    function approveNewOwner() external{
-        require(_requestingOwner != address(0), "New requesting owner is not initialized");
-        require(_msgSender() == _requestingOwner, "Forbidden");
-        owner = _requestingOwner;
-        _requestingOwner = address(0);
-
-        emit OwnerChanged(owner);
-    }
-
-    /**
-    * @dev Event that notifies contract's owner has been changed to `newOwner` 
-    */
-    event OwnerChanged(address newOwner);
 }
-
-//SPDX-License-Identifier: MIT
